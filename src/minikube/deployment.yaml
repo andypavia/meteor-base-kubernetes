@@ -1,0 +1,85 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meteor-app
+  labels:
+    app: meteor-app
+    version: minikube
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: meteor-app
+      version: minikube
+  template:
+    metadata:
+      labels:
+        app: meteor-app
+        version: minikube
+    spec:
+      restartPolicy: Always
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: meteor-app
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: meteor-app
+        image: meteor-app
+        imagePullPolicy: IfNotPresent
+        envFrom:
+          - configMapRef:
+              name: meteor-app
+        env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: POD_LABEL_APP
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['app']
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: POD_UID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.uid
+          - name: ROOT_URL
+            value: http://127.0.0.1
+          - name: PORT
+            value: "3000"
+          - name: MONGO_URL
+            value: mongodb://mongo:27017/meteor
+        ports:
+        - containerPort: 3000 # which port should be open on Pods
+          name: http-server
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 450Mi
+          requests:
+            cpu: 300m
+            memory: 300Mi
+      terminationGracePeriodSeconds: 15
