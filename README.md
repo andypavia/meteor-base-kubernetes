@@ -1,4 +1,13 @@
-# Base Docker Image for Meteor Apps
+# Introduction
+
+The repo is a fork of:
+https://github.com/disney/meteor-base
+
+The only addition is the the minikube folder, which contains the manifests to get it working on Kubernetes:
+https://github.com/andypavia/meteor-base-kubernetes/tree/master/src/minikube
+
+
+## Base Docker Image for Meteor Apps
 
 This repo contains a base Docker image for use by [Meteor](https://www.meteor.com/) apps built using a [multistage Dockerfile](https://docs.docker.com/develop/develop-images/multistage-build/). You might want to use this base because:
 
